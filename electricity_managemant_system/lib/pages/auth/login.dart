@@ -20,6 +20,7 @@ class _loginpageState extends State<loginpage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Spacer(),
             const Text('Login Page'),
             const SizedBox(height: 20),
             Padding(
@@ -75,9 +76,37 @@ class _loginpageState extends State<loginpage> {
                   ),
                 )
               ],
-            )
-
+            ),
             // Login Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                ),
+                child: const Text('Login'),
+              ),
+            ),
+            const Divider(),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Don\'t have an account?'),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                )
+              ],
+            )
           ],
         ),
       )),
