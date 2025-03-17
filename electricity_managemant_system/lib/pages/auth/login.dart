@@ -17,11 +17,11 @@ class _loginpageState extends State<loginpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
-            ),
+          child: SingleChildScrollView(
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+          ),
           padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -29,10 +29,10 @@ class _loginpageState extends State<loginpage> {
               // const Spacer(),
               // const Text('Login Page'),
               Image.asset(
-                'assets/logos/darkmode.png',
+                'assets/logos/lightmode2.png',
                 height: 200,
               ),
-          
+
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
@@ -73,7 +73,7 @@ class _loginpageState extends State<loginpage> {
                 ),
               ),
               const SizedBox(height: 2),
-          
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -129,8 +129,8 @@ class _loginpageState extends State<loginpage> {
               )
             ],
           ),
-                ),
-        )),
+        ),
+      )),
     );
   }
 }

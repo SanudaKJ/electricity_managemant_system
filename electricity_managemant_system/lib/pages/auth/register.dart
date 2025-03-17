@@ -29,7 +29,7 @@ class _RegisterState extends State<Register> {
               // const Spacer(),
               // const Text('Login Page'),
               Image.asset(
-                'assets/logos/darkmode.png',
+                'assets/logos/lightmode2.png',
                 height: 200,
               ),
 
