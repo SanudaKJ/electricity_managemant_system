@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "471326090855",
+    "project_id": "electricitymanagemantsystem",
+    "storage_bucket": "electricitymanagemantsystem.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:471326090855:android:abafa331df1bcef68256c2",
+        "android_client_info": {
+          "package_name": "com.example.electricity_managemant_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyN_V8Bzwtn9AlDKeBkT-7z41CAIg58Ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
