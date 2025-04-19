@@ -1,9 +1,11 @@
 import 'package:electricity_managemant_system/pages/auth/register.dart';
 import 'package:electricity_managemant_system/pages/home/home.dart';
 import 'package:electricity_managemant_system/widgets/custom_widgets.dart';
+import 'package:electricity_managemant_system/widgets/navigationbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class loginpage extends StatefulWidget {
   const loginpage({super.key});
@@ -17,18 +19,20 @@ class _loginpageState extends State<loginpage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim());
-    } catch (e) {
-      print(e);
-      return;
-    }
-    if (mounted) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const home()));
-    }
+    // try {
+    //   await FirebaseAuth.instance.signInWithEmailAndPassword(
+    //       email: emailController.text.trim(),
+    //       password: passwordController.text.trim());
+    // } catch (e) {
+    //   print(e);
+    //   return;
+    // }
+    // if (mounted) {
+    //   Navigator.pushReplacement(
+    //       context, MaterialPageRoute(builder: (context) => const home()));
+    // }
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const Navigationbar()));
   }
 
   @override
@@ -134,7 +138,7 @@ class _loginpageState extends State<loginpage> {
                 const SizedBox(height: 0),
                 const Text(
                   'Or continue with',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -146,18 +150,19 @@ class _loginpageState extends State<loginpage> {
                         // Add Google login logic here
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        side: const BorderSide(color: Colors.grey),
+                        // backgroundColor: Colors.white,
+                        // foregroundColor: Colors.black,
+                        // side: const BorderSide(color: Colors.grey),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(
                             10), // Adjust padding for icon size
                       ),
-                      child: const Icon(
-                        Icons.apple,
+                      child: const FaIcon(
+                        FontAwesomeIcons.google,
                         size: 24,
+                        color: Colors.red, // Google icon color
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -167,17 +172,18 @@ class _loginpageState extends State<loginpage> {
                         // Add Apple login logic here
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
+                        // backgroundColor: Colors.black,
+                        // foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(
                             10), // Adjust padding for icon size
                       ),
-                      child: const Icon(
-                        Icons.apple,
+                      child: const FaIcon(
+                        FontAwesomeIcons.apple,
                         size: 24,
+                        color: Colors.black, // Apple icon color
                       ),
                     ),
                   ],

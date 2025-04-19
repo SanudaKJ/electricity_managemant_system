@@ -66,7 +66,7 @@ class _RegisterState extends State<Register> {
                   Text(
                     'Sign Up',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
