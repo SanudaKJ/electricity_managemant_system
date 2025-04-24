@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_managemant_system/pages/auth/login.dart';
 import 'package:electricity_managemant_system/widgets/custom_widgets.dart';
+import 'package:electricity_managemant_system/widgets/navigationbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,25 +25,120 @@ class _RegisterState extends State<Register> {
   String? selectedCompanyType;
 
   Future<void> register() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          color: Colors.orange,
+        ),
+      ),
+    );
+
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-              email: emailController.text.trim(),
-              password: passwordController.text.trim());
-      String userId = userCredential.user!.uid;
-      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+      if (companyNameController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          passwordController.text.isEmpty ||
+          confirmpasswordController.text.isEmpty ||
+          selectedCompanyType == null) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please fill all fields'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (passwordController.text != confirmpasswordController.text) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Passwords do not match'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      if (!isChecked) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please accept the Terms and Conditions'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      final String uid = userCredential.user!.uid;
+
+      await FirebaseFirestore.instance.collection('companies').doc(uid).set({
         'companyName': companyNameController.text.trim(),
         'companyType': selectedCompanyType,
         'email': emailController.text.trim(),
-        'userId': userId,
+        'createdAt': FieldValue.serverTimestamp(),
       });
-      if (mounted) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const loginpage()));
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account created successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Navigationbar()),
+      );
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+
+      String errorMessage;
+
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = 'Email already in use. Please use a different email.';
+          break;
+        case 'weak-password':
+          errorMessage =
+              'Password is too weak. Please use a stronger password.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Invalid email format. Please check your email.';
+          break;
+        default:
+          errorMessage = 'An error occurred: ${e.message}';
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
-      print("Error: ${e.toString()}");
-      return;
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -56,6 +152,7 @@ class _RegisterState extends State<Register> {
             minHeight: MediaQuery.of(context).size.height,
           ),
           padding: const EdgeInsets.all(20.0),
+          color: Colors.white,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -102,7 +199,7 @@ class _RegisterState extends State<Register> {
                 ],
               ),
               CustomTextField(
-                controller: emailController,
+                controller: companyNameController,
                 hintText: 'Company Name',
               ),
               const SizedBox(height: 20),
@@ -197,11 +294,11 @@ class _RegisterState extends State<Register> {
                 ],
               ),
               CustomTextField(
-                controller: emailController,
+                controller: passwordController,
                 hintText: 'Create a Password',
               ),
               CustomTextField(
-                controller: emailController,
+                controller: confirmpasswordController,
                 hintText: 'Confirm Password',
               ),
               const SizedBox(height: 15),

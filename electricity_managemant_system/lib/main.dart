@@ -1,13 +1,14 @@
 import 'package:electricity_managemant_system/firebase_options.dart';
 import 'package:electricity_managemant_system/pages/auth/login.dart';
 import 'package:electricity_managemant_system/pages/home/home.dart';
+import 'package:electricity_managemant_system/widgets/navigationbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
-                return const home();
+                return const Navigationbar();
               } else {
                 return const loginpage();
               }

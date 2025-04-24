@@ -19,20 +19,78 @@ class _loginpageState extends State<loginpage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login() async {
-    // try {
-    //   await FirebaseAuth.instance.signInWithEmailAndPassword(
-    //       email: emailController.text.trim(),
-    //       password: passwordController.text.trim());
-    // } catch (e) {
-    //   print(e);
-    //   return;
-    // }
-    // if (mounted) {
-    //   Navigator.pushReplacement(
-    //       context, MaterialPageRoute(builder: (context) => const home()));
-    // }
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const Navigationbar()));
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          color: Colors.orange,
+        ),
+      ),
+    );
+
+    try {
+      if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please fill all fields'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      Navigator.pop(context);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Navigationbar()),
+      );
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+
+      String errorMessage;
+
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'No user found with this email.';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Invalid password. Please try again.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Invalid email format. Please check your email.';
+          break;
+        case 'user-disabled':
+          errorMessage = 'This account has been disabled.';
+          break;
+        default:
+          errorMessage = 'An error occurred: ${e.message}';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -45,6 +103,7 @@ class _loginpageState extends State<loginpage> {
               minHeight: MediaQuery.of(context).size.height,
             ),
             padding: const EdgeInsets.all(20.0),
+            color: Colors.white,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
