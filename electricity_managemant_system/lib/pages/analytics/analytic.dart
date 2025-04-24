@@ -1,22 +1,20 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class home extends StatefulWidget {
-  const home({super.key});
+class Analytic extends StatefulWidget {
+  const Analytic({super.key});
 
   @override
-  State<home> createState() => _homeState();
+  State<Analytic> createState() => _AnalyticState();
 }
 
-class _homeState extends State<home> {
+class _AnalyticState extends State<Analytic> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Text(
-          'Home Page',
+          'Analytics Page',
           style: TextStyle(fontSize: 24, color: Colors.orange[800]),
         ),
       ),
