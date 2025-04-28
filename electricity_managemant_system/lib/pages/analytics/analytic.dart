@@ -342,7 +342,9 @@ class _AnalyticState extends State<Analytic>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const PredictPage()),
+                              builder: (context) => PredictPage(
+                                  companyId: item.id), // Pass company ID
+                            ),
                           );
                         },
                         icon: const Icon(Icons.analytics, color: Colors.black),

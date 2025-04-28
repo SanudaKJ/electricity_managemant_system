@@ -1,22 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_managemant_system/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
+import 'report.dart';
 
 class PredictPage extends StatefulWidget {
-  const PredictPage({super.key});
+  final String companyId; // Accept company ID as a parameter
+
+  const PredictPage({super.key, required this.companyId});
 
   @override
   State<PredictPage> createState() => _PredictPageState();
-}
-
-class PredictionService {
-  static void submitPrediction(BuildContext context) {
-    // Your form submission logic here
-
-    // Example: Show a success snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Prediction submitted!")),
-    );
-  }
 }
 
 class _PredictPageState extends State<PredictPage> {
@@ -26,6 +19,47 @@ class _PredictPageState extends State<PredictPage> {
   final TextEditingController dayHoursController = TextEditingController();
   final TextEditingController peakHoursController = TextEditingController();
   final TextEditingController offPeakHoursController = TextEditingController();
+
+  bool isPredictionAvailable = false; // Track if prediction data exists
+  String? predictionId; // Store the ID of the existing prediction document
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPredictionData();
+  }
+
+  Future<void> _fetchPredictionData() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('analytics')
+          .doc(widget.companyId)
+          .collection('predictions')
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+        predictionId = snapshot.docs.first.id;
+
+        // Populate text fields with fetched data
+        machineNameController.text = data['machine_name'] ?? '';
+        kwController.text = (data['kw'] ?? '').toString();
+        powerFactorController.text = (data['power_factor'] ?? '').toString();
+        dayHoursController.text = (data['day_hours'] ?? '').toString();
+        peakHoursController.text = (data['peak_hours'] ?? '').toString();
+        offPeakHoursController.text = (data['off_peak_hours'] ?? '').toString();
+
+        setState(() {
+          isPredictionAvailable = true; // Mark that prediction data exists
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to fetch prediction data: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +72,7 @@ class _PredictPageState extends State<PredictPage> {
         backgroundColor: Colors.orange[800],
       ),
       body: Container(
-        color: Colors.white, // Set the background color to white
+        color: Colors.white,
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -154,9 +188,56 @@ class _PredictPageState extends State<PredictPage> {
               ),
               const SizedBox(height: 24),
               CustomButton(
-                text: 'Submit Machine Details',
-                onPressed: () {
-                  PredictionService.submitPrediction(context);
+                text: isPredictionAvailable
+                    ? 'View Report'
+                    : 'Submit Machine Details',
+                onPressed: () async {
+                  if (isPredictionAvailable) {
+                    // Navigate to the Report page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Report(),
+                      ),
+                    );
+                  } else {
+                    // Collect form data
+                    final predictionData = {
+                      'machine_name': machineNameController.text,
+                      'kw': double.tryParse(kwController.text) ?? 0.0,
+                      'power_factor':
+                          double.tryParse(powerFactorController.text) ?? 0.0,
+                      'day_hours': int.tryParse(dayHoursController.text) ?? 0,
+                      'peak_hours': int.tryParse(peakHoursController.text) ?? 0,
+                      'off_peak_hours':
+                          int.tryParse(offPeakHoursController.text) ?? 0,
+                      'timestamp': FieldValue.serverTimestamp(),
+                    };
+
+                    // Save data to Firestore
+                    try {
+                      await FirebaseFirestore.instance
+                          .collection('analytics')
+                          .doc(widget.companyId)
+                          .collection('predictions')
+                          .add(predictionData);
+
+                      // Show success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Prediction submitted successfully!")),
+                      );
+
+                      // Reload the page to fetch the new data
+                      _fetchPredictionData();
+                    } catch (e) {
+                      // Show error message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text("Failed to submit prediction: $e")),
+                      );
+                    }
+                  }
                 },
               ),
             ],
