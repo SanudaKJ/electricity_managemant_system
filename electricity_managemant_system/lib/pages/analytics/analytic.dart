@@ -128,9 +128,11 @@ class _AnalyticState extends State<Analytic>
         onPressed: () {
           _showFormModal(context);
         },
-        icon: const Icon(Icons.add, color: Colors.black,),
+        icon: const Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
         label: const Text("Add Data", style: TextStyle(color: Colors.black)),
-        
         backgroundColor: Colors.orange[800],
       ),
     );
@@ -159,10 +161,12 @@ class _AnalyticState extends State<Analytic>
             onPressed: () {
               _showFormModal(context);
             },
-            icon: const Icon(Icons.add),
-            label: const Text("Add Your First Entry"),
+            icon: const Icon(Icons.add, color: Colors.black),
+            label: const Text("Add Your First Entry",
+                style: TextStyle(color: Colors.black)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              backgroundColor: Colors.orange[800],
             ),
           ),
         ],
@@ -310,7 +314,8 @@ class _AnalyticState extends State<Analytic>
                   'Tariff: ${item['tariff_category']}',
                 ),
                 leading: const CircleAvatar(
-                  child: Icon(Icons.business , color: Color.fromARGB(255, 255, 115, 0)),
+                  child: Icon(Icons.business,
+                      color: Color.fromARGB(255, 255, 115, 0)),
                   backgroundColor: Colors.orangeAccent,
                 ),
                 children: [
@@ -327,23 +332,32 @@ class _AnalyticState extends State<Analytic>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PredictPage()),
-                        );
-                      },
-                      icon: const Icon(Icons.analytics, color: Colors.black),
-                      label: const Text("Predict" , style: TextStyle(color: Colors.black)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange[800],
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                  // const SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PredictPage(
+                                  companyId: item.id), // Pass company ID
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.analytics, color: Colors.black),
+                        label: const Text("Predict",
+                            style: TextStyle(color: Colors.black)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange[800],
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
                       ),
                     ),
                   ),
@@ -623,10 +637,9 @@ class _AnalyticState extends State<Analytic>
                       child: const Text(
                         'Submit Data',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
-                        ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                     ),
                   ),
