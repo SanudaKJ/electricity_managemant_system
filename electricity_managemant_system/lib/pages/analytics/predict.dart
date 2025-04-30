@@ -86,54 +86,66 @@ class _PredictPageState extends State<PredictPage> {
     }
   }
 
-  Future<Map<String, dynamic>?> _sendPredictionRequest() async {
-    const String apiUrl = 'http://35.177.54.179:5000/predict';
+Future<Map<String, dynamic>?> _sendPredictionRequest() async {
+  const String apiUrl = 'http://35.177.54.179:5000/predict';
 
-    // Create a normalized copy of analytics data with lowercase fields
-    final normalizedAnalyticsData = {
-      "company_size": (widget.analyticsData["company_size"] as String).toLowerCase(), 
-      "tariff_category": widget.analyticsData["tariff_category"],
-      "working_days": widget.analyticsData["working_days"],
-      // Remove year and month as they're not in the Postman example
-      // "year": widget.analyticsData["year"],
-      // "month": widget.analyticsData["month"],
-    };
+  // Log each machine in the list for debugging
+  print('Number of machines: ${machines.length}');
+  for (int i = 0; i < machines.length; i++) {
+    print('Machine ${i+1}: ${jsonEncode(machines[i])}');
+  }
 
-    // Combine normalized analytics and machine data
-    final requestData = {
-      ...normalizedAnalyticsData,
-      "machines": machines, // Use the list of machines
-    };
+  // Create a normalized copy of analytics data with lowercase fields
+  final normalizedAnalyticsData = {
+    "company_size": (widget.analyticsData["company_size"] as String).toLowerCase(), 
+    "tariff_category": widget.analyticsData["tariff_category"],
+    "working_days": widget.analyticsData["working_days"],
+    // Remove year and month as they're not in the Postman example
+    // "year": widget.analyticsData["year"],
+    // "month": widget.analyticsData["month"],
+  };
 
-    print('Request Data: ${jsonEncode(requestData)}'); // Log the request data
+  // Combine normalized analytics and machine data
+  final requestData = {
+    ...normalizedAnalyticsData,
+    "machines": machines, // Use the list of machines
+  };
 
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestData),
-      );
+  // Log the entire request for debugging
+  print('Full Request Data: ${jsonEncode(requestData)}');
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        print('Prediction Response: $responseData');
-        return responseData;
-      } else {
-        print('Failed to predict. Status code: ${response.statusCode}');
-        print('Response Body: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to predict: ${response.body}')),
-        );
-        return null;
-      }
-    } catch (e) {
-      print('Error sending prediction request: $e');
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestData),
+    );
+
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Headers: ${response.headers}');
+    print('Raw Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      print('Parsed Response Data: ${jsonEncode(responseData)}');
+      return responseData;
+    } else {
+      print('Failed to predict. Status code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sending prediction request: $e')),
+        SnackBar(content: Text('Failed to predict: ${response.body}')),
       );
       return null;
     }
+  } catch (e) {
+    print('Error sending prediction request: $e');
+    print('Error details: ${e.toString()}');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error sending prediction request: $e')),
+    );
+    return null;
   }
+}
 
   void _addMachine() {
     // Validate input fields
