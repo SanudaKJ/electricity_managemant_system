@@ -5,12 +5,36 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Analytic extends StatefulWidget {
   const Analytic({super.key});
 
   @override
   State<Analytic> createState() => _AnalyticState();
+}
+
+Future<void> _sendPredictionRequest(Map<String, dynamic> requestData) async {
+  const String apiUrl = 'http://35.177.54.179:5000/predict';
+
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestData),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      print('Prediction Response: $responseData');
+      // Handle the response (e.g., navigate to a report page or show a dialog)
+    } else {
+      print('Failed to predict. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error sending prediction request: $e');
+  }
 }
 
 class _AnalyticState extends State<Analytic>
@@ -338,17 +362,29 @@ class _AnalyticState extends State<Analytic>
                     child: Align(
                       alignment: Alignment.center,
                       child: ElevatedButton.icon(
-                        onPressed: () {
+                        onPressed: () async {
+                          // Collect analytics data
+                          final analyticsData = {
+                            "company_size": item['company_size'],
+                            "tariff_category": item['tariff_category'],
+                            "working_days": item['working_days'],
+                            "year": item['year'],
+                            "month": item['month'],
+                          };
+
+                          // Navigate to the PredictPage and pass the analytics data
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => PredictPage(
-                                  companyId: item.id), // Pass company ID
+                                companyId: item.id,
+                                analyticsData: analyticsData,
+                              ),
                             ),
                           );
                         },
                         icon: const Icon(Icons.analytics, color: Colors.black),
-                        label: const Text("Predict",
+                        label: const Text("Predict Bill",
                             style: TextStyle(color: Colors.black)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange[800],
@@ -409,9 +445,8 @@ class _AnalyticState extends State<Analytic>
     final List<String> companySizes = ['Small', 'Medium', 'Large'];
     // Tariff category options
     final List<String> tariffCategories = [
-      'Residential',
-      'Commercial',
-      'Industrial'
+      'industrial_rate1_small',
+      'industrial_rate1_large'
     ];
 
     showModalBottomSheet(
