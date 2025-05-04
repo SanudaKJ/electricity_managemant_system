@@ -13,13 +13,13 @@ class home extends StatefulWidget {
 class _HomeState extends State<home> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isLoading = true;
-  
+
   // Data variables
   List<Map<String, dynamic>> _companyData = [];
   int _totalCompanies = 0;
   Map<String, int> _companySizeDistribution = {};
   double _totalEnergyUsage = 0;
-  
+
   @override
   void initState() {
     super.initState();
@@ -30,34 +30,35 @@ class _HomeState extends State<home> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       // Fetch analytics data
       final analyticsSnapshot = await _firestore.collection('analytics').get();
-      
+
       if (analyticsSnapshot.docs.isEmpty) {
         setState(() {
           _isLoading = false;
         });
         return;
       }
-      
+
       // Process analytics data
       final List<Map<String, dynamic>> data = [];
       _companySizeDistribution = {'Small': 0, 'Medium': 0, 'Large': 0};
       double totalEnergy = 0;
-      
+
       for (var doc in analyticsSnapshot.docs) {
         final Map<String, dynamic> item = doc.data();
         item['id'] = doc.id;
         data.add(item);
-        
+
         // Update company size distribution
         final companySize = item['company_size'] as String? ?? 'Unknown';
         if (_companySizeDistribution.containsKey(companySize)) {
-          _companySizeDistribution[companySize] = _companySizeDistribution[companySize]! + 1;
+          _companySizeDistribution[companySize] =
+              _companySizeDistribution[companySize]! + 1;
         }
-        
+
         // Fetch prediction data for energy calculation
         try {
           final predictionSnapshot = await _firestore
@@ -65,26 +66,27 @@ class _HomeState extends State<home> {
               .doc(doc.id)
               .collection('predictions')
               .get();
-          
+
           if (predictionSnapshot.docs.isNotEmpty) {
             final predictionData = predictionSnapshot.docs.first.data();
-            
+
             // Calculate energy consumption
             final kw = predictionData['kw'] as double? ?? 0.0;
             final dayHours = predictionData['day_hours'] as int? ?? 0;
             final peakHours = predictionData['peak_hours'] as int? ?? 0;
             final offPeakHours = predictionData['off_peak_hours'] as int? ?? 0;
             final workingDays = item['working_days'] as int? ?? 0;
-            
+
             // Calculate total energy for this company (kWh)
-            final energy = kw * (dayHours + peakHours + offPeakHours) * workingDays;
+            final energy =
+                kw * (dayHours + peakHours + offPeakHours) * workingDays;
             totalEnergy += energy;
           }
         } catch (e) {
           print('Error fetching prediction data: $e');
         }
       }
-      
+
       // Update state with processed data
       setState(() {
         _companyData = data;
@@ -92,7 +94,6 @@ class _HomeState extends State<home> {
         _totalEnergyUsage = totalEnergy;
         _isLoading = false;
       });
-      
     } catch (e) {
       print('Error fetching data: $e');
       setState(() {
@@ -125,7 +126,7 @@ class _HomeState extends State<home> {
               : _buildDashboard(),
     );
   }
-  
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -174,13 +175,13 @@ class _HomeState extends State<home> {
             // Summary Cards
             _buildSummarySection(),
             const SizedBox(height: 24),
-            
+
             // Company Size Distribution Chart
             _buildSectionHeader('Company Size Distribution'),
             const SizedBox(height: 8),
             _buildCompanyDistributionChart(),
             const SizedBox(height: 24),
-            
+
             // Recent Companies List
             _buildSectionHeader('Recent Companies'),
             const SizedBox(height: 8),
@@ -190,7 +191,7 @@ class _HomeState extends State<home> {
       ),
     );
   }
-  
+
   Widget _buildSummarySection() {
     return Row(
       children: [
@@ -214,8 +215,9 @@ class _HomeState extends State<home> {
       ],
     );
   }
-  
-  Widget _buildInfoCard(String title, String value, IconData icon, Color color) {
+
+  Widget _buildInfoCard(
+      String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -250,7 +252,7 @@ class _HomeState extends State<home> {
       ),
     );
   }
-  
+
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
@@ -263,18 +265,18 @@ class _HomeState extends State<home> {
       ),
     );
   }
-  
+
   Widget _buildCompanyDistributionChart() {
     if (_companySizeDistribution.isEmpty) {
       return const Center(child: Text('No data available'));
     }
-    
+
     final Map<String, Color> sizeColors = {
       'Small': Colors.blue,
       'Medium': Colors.green,
       'Large': Colors.orange,
     };
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -300,7 +302,7 @@ class _HomeState extends State<home> {
                     );
                   }).toList(),
                   sectionsSpace: 2,
-                  centerSpaceRadius: 40,
+                  centerSpaceRadius: 20,
                 ),
               ),
             ),
@@ -335,15 +337,15 @@ class _HomeState extends State<home> {
       ),
     );
   }
-  
+
   Widget _buildRecentCompaniesList() {
     if (_companyData.isEmpty) {
       return const Center(child: Text('No companies available'));
     }
-    
+
     // Take the most recent 5 companies
     final recentCompanies = _companyData.take(5).toList();
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -354,9 +356,10 @@ class _HomeState extends State<home> {
         itemBuilder: (context, index) {
           final company = recentCompanies[index];
           final companySize = company['company_size'] as String? ?? 'Unknown';
-          final tariffCategory = company['tariff_category'] as String? ?? 'Unknown';
+          final tariffCategory =
+              company['tariff_category'] as String? ?? 'Unknown';
           final workingDays = company['working_days'] as int? ?? 0;
-          
+
           return ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.orange[100],
@@ -373,11 +376,13 @@ class _HomeState extends State<home> {
             trailing: IconButton(
               icon: const Icon(Icons.arrow_forward_ios, size: 16),
               onPressed: () {
-                Navigator.pushNamed(context, '/predict', arguments: company['id']);
+                Navigator.pushNamed(context, '/predict',
+                    arguments: company['id']);
               },
             ),
             onTap: () {
-              Navigator.pushNamed(context, '/predict', arguments: company['id']);
+              Navigator.pushNamed(context, '/predict',
+                  arguments: company['id']);
             },
           );
         },
